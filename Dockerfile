@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:buster-slim
 
 MAINTAINER Oluwaseun Obajobi "oluwaseun.obajobi@namshi.com"
 
@@ -13,6 +13,8 @@ COPY set-exim4-update-conf /bin/
 
 RUN chmod a+x /bin/entrypoint.sh && \
     chmod a+x /bin/set-exim4-update-conf
+
+VOLUME /var/spool/exim4
 
 EXPOSE 25
 ENTRYPOINT ["/bin/entrypoint.sh"]
