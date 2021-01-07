@@ -19,6 +19,38 @@ To disable IPV6 you can set the `DISABLE_IPV6` environment variable to any value
 
 The container accepts `OTHER_HOSTNAMES` environment variable which will set the list of domains for which this machine should consider itself the final destination.
 
+## Volumes
+
+This container uses a volume for `/var/spool/exim4`, to persist any queued messages during container restarts. 
+
+## DKIM support
+
+First, you need to generate a `./dkim/domain.key` file for your outgoing domain. Check Google for more information on that. 
+Second, you use the following configuration:
+
+```
+$ cat ./dkim/config
+DKIM_DOMAIN = ${lc:${domain:$h_from:}}
+DKIM_KEY_FILE = /etc/exim4/domain.key
+DKIM_PRIVATE_KEY = ${if exists{DKIM_KEY_FILE}{DKIM_KEY_FILE}{0}}
+DKIM_SELECTOR = mail
+DKIM_CANON = simple
+```
+
+These files need to be mounted inside the container, by using volumes. When using docker-compose, you can add:
+
+```
+    volumes:
+      - ./dkim/config:/etc/exim4/_docker_additional_macros:ro
+      - ./dkim/domain.key:/etc/exim4/domain.key:ro
+```
+
+For a stand-online run, you can use:
+
+```
+$ docker run -v ./dkim/config:/etc/exim4/_docker_additional_macros -v ./dkim/domain.key:/etc/exim4/domain.key docker-smtp
+```
+
 ## Below are scenarios for using this container
 
 ### As SMTP Server
